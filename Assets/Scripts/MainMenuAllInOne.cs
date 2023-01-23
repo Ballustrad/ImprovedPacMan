@@ -11,11 +11,12 @@ public class MainMenuAllInOne : MonoBehaviour
     public GameObject MenuCredits;
     public GameObject MenuCommands;
     [SerializeField] private AudioSource Click;
+    
     public void MoveToScene(int sceneID)
     {
         Click.Play();
-        SceneManager.LoadScene("essential", LoadSceneMode.Single);
-        SceneManager.LoadScene(sceneID, LoadSceneMode.Additive);
+        SceneManager.LoadScene(sceneID);
+        
     }
     public void Quit()
     {

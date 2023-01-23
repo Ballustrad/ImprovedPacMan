@@ -14,8 +14,5 @@ public class AudioManager : MonoBehaviour
         audioSource.Play();
     }
 
-    void Update()
-    {
-        
-    }
+    
 }
