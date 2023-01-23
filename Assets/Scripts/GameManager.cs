@@ -1,19 +1,27 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
     public Ghost[] ghosts;
     public Pacman pacman;
     public Transform pellets;
+    public int nbTotal = 240;
 
     public Text gameOverText;
+    public Text WinText;
     public Text scoreText;
     public Text livesText;
+    public CameraShake cameraShake;
 
     public int ghostMultiplier { get; private set; } = 1;
     public int score { get; private set; }
     public int lives { get; private set; }
+
+    public GameObject AudioManager;
+    [SerializeField] private AudioSource JB_Hard;
+    [SerializeField] private AudioSource BGM;
 
     private void Start()
     {
@@ -25,18 +33,29 @@ public class GameManager : MonoBehaviour
         if (lives <= 0 && Input.anyKeyDown) {
             NewGame();
         }
+        if (nbTotal == 0 ) 
+        {
+            Win();
+        } 
+        if (PauseMenu.GameISPaused)
+        {
+            StopCoroutine(cameraShake.Shake(8f, .040f));
+        }
     }
 
     private void NewGame()
     {
+        BGM.Play();
         SetScore(0);
         SetLives(3);
         NewRound();
     }
 
     private void NewRound()
-    {
+    {   
+        BGM.Play();
         gameOverText.enabled = false;
+        WinText.enabled = false;
 
         foreach (Transform pellet in pellets) {
             pellet.gameObject.SetActive(true);
@@ -55,7 +74,8 @@ public class GameManager : MonoBehaviour
     }
 
     private void GameOver()
-    {
+    {   
+        StopCoroutine(cameraShake.Shake(8f, .040f));
         gameOverText.enabled = true;
 
         for (int i = 0; i < ghosts.Length; i++) {
@@ -63,6 +83,14 @@ public class GameManager : MonoBehaviour
         }
 
         pacman.gameObject.SetActive(false);
+    }
+
+        private void Win()
+    {
+        StopCoroutine(cameraShake.Shake(8f, .040f));
+        WinText.enabled = true;
+        BGM.Stop();
+        JB_Hard.Stop();
     }
 
     private void SetLives(int lives)
@@ -82,6 +110,7 @@ public class GameManager : MonoBehaviour
         pacman.DeathSequence();
 
         SetLives(lives - 1);
+        Debug.Log("mort");
 
         if (lives > 0) {
             Invoke(nameof(ResetState), 3f);
@@ -108,11 +137,21 @@ public class GameManager : MonoBehaviour
         {
             pacman.gameObject.SetActive(false);
             Invoke(nameof(NewRound), 3f);
+            Win();
         }
     }
-
+    IEnumerator PowerMusic()
+    {   
+        BGM.Pause();
+        JB_Hard.Play();
+        yield return new WaitForSeconds(8f);
+        JB_Hard.Stop();
+        BGM.UnPause();
+    }
     public void PowerPelletEaten(PowerPellet pellet)
     {
+        StartCoroutine(cameraShake.Shake(8f, .040f));
+        StartCoroutine(PowerMusic());
         for (int i = 0; i < ghosts.Length; i++) {
             ghosts[i].frightened.Enable(pellet.duration);
         }
