@@ -10,14 +10,14 @@ public class Pellet : MonoBehaviour
     
     protected virtual void Eat()
     {
-        audioSource.PlayOneShot(clip);
+        
         FindObjectOfType<GameManager>().PelletEaten(this);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.layer == LayerMask.NameToLayer("Pacman")) {
-
+            audioSource.PlayOneShot(clip);
             Eat();
             
         }
