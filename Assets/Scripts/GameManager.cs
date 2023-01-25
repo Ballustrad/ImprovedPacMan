@@ -36,6 +36,7 @@ public class GameManager : MonoBehaviour
         if (nbTotal == 0 ) 
         {
             Win();
+            StopCoroutine(cameraShake.Shake(8f, .040f));
         } 
         if (PauseMenu.GameISPaused)
         {
